@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "coffee-quality"
+version = "0.1.0"
+description = "Industrial-grade MLSecOps pipeline for CQI Arabica coffee specialty classification"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Roland Tanácsi", email = "tanacsiroland@users.noreply.github.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Security",
+]
+
+[tool.pyright]
+include = ["src"]
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-ra -q --strict-markers"
+
+[tool.coverage.run]
+source = ["src", "tests"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+]
