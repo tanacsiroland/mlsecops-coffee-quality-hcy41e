@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from coffee_quality.api.routes.monitoring import router as monitoring_router
 from coffee_quality.api.routes.predict import router as predict_router
 from coffee_quality.api.routes.train import router as train_router
 from coffee_quality.config import Settings, get_settings
@@ -142,6 +143,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Route modules
     app.include_router(predict_router)
     app.include_router(train_router)
+    app.include_router(monitoring_router)
 
     return app
 
