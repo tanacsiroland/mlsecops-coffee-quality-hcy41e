@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -178,7 +180,7 @@ class TrainingTriggerRequest(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    model_type: str = Field(
+    model_type: Literal["random_forest", "lightgbm"] = Field(
         default="random_forest",
         description="Model architecture to train ('random_forest' or 'lightgbm')",
     )

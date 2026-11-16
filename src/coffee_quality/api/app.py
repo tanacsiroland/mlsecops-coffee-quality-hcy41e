@@ -13,6 +13,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from coffee_quality.api.routes.predict import router as predict_router
+from coffee_quality.api.routes.train import router as train_router
 from coffee_quality.config import Settings, get_settings
 
 logger = logging.getLogger(__name__)
@@ -140,6 +141,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     # Route modules
     app.include_router(predict_router)
+    app.include_router(train_router)
 
     return app
 
