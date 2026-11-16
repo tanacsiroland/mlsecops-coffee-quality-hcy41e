@@ -37,9 +37,12 @@ jobs:
         with:
           version: "0.5.26"
 
-      - name: Install linting and security tools
+      - name: Create virtual environment and install dependencies
         run: |
-          uv pip install --system pre-commit flake8 pyright
+          uv venv .venv
+          uv pip install -r requirements.txt
+          uv pip install pre-commit flake8 pyright
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> $GITHUB_PATH
 
       - name: Run pre-commit checks
         run: |
@@ -76,10 +79,12 @@ jobs:
         with:
           version: "0.5.26"
 
-      - name: Install application dependencies
+      - name: Create virtual environment and install dependencies
         run: |
-          uv pip install --system -r requirements.txt
-          uv pip install --system -e . --no-deps
+          uv venv .venv
+          uv pip install -r requirements.txt
+          uv pip install -e . --no-deps
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> $GITHUB_PATH
 
       - name: Execute pytest with strict 95% coverage requirement
         run: |
@@ -129,3 +134,4 @@ jobs:
           docker logs test-api
           curl --fail --retry 5 --retry-delay 2 http://localhost:8000/health
           docker stop test-api
+          docker rm -f test-api
