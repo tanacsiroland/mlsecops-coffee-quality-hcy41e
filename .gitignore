@@ -220,3 +220,8 @@ __marimo__/
 .streamlit/secrets.toml
 
 CONTEXT.md
+
+# MLflow and local model artifacts
+mlflow.db
+mlruns/
+artifacts/
