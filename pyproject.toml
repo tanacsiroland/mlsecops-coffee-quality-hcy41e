@@ -32,6 +32,7 @@ reportUnknownVariableType = false
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
+pythonpath = ["."]
 python_files = ["test_*.py"]
 addopts = "-ra -q --strict-markers"
 
