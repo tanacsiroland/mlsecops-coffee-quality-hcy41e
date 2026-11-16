@@ -51,6 +51,10 @@ class Settings(BaseModel):
         default=Path("data/audit/audit.jsonl"),
         description="Structured JSONL audit log capturing inference inputs and predictions",
     )
+    enable_audit_logging: bool = Field(
+        default=True,
+        description="Enables structured JSONL audit logging for model inference tracking",
+    )
     model_artifacts_dir: Path = Field(
         default=Path("artifacts/models"),
         description="Local directory storing exported model weights and manifests",

@@ -1,6 +1,12 @@
 """FastAPI REST service, schemas, dependencies, and route endpoints."""
 
 from coffee_quality.api.app import app, create_app
+from coffee_quality.api.audit import (
+    AuditLogger,
+    AuditRecord,
+    get_audit_logger,
+    redact_sensitive_data,
+)
 from coffee_quality.api.dependencies import (
     ModelContainer,
     ModelMetadata,
@@ -20,6 +26,8 @@ from coffee_quality.api.schemas import (
 )
 
 __all__ = [
+    "AuditLogger",
+    "AuditRecord",
     "CoffeeBatchRequest",
     "CoffeePredictionInput",
     "ModelContainer",
@@ -30,9 +38,11 @@ __all__ = [
     "TrainingTriggerResponse",
     "app",
     "create_app",
+    "get_audit_logger",
     "get_model_metadata",
     "get_model_pipeline",
     "get_settings_dependency",
     "global_model_container",
     "load_production_model",
+    "redact_sensitive_data",
 ]

@@ -29,6 +29,7 @@ def test_default_settings() -> None:
     assert settings.data_raw_path == Path("data/raw/dataset.csv")
     assert settings.data_processed_dir == Path("data/processed")
     assert settings.audit_log_path == Path("data/audit/audit.jsonl")
+    assert settings.enable_audit_logging is True
     assert settings.model_artifacts_dir == Path("artifacts/models")
     assert settings.mlflow_tracking_uri == "sqlite:///mlflow.db"
     assert settings.mlflow_experiment_name == "coffee-quality-evaluation"
@@ -44,6 +45,7 @@ def test_environment_variable_overrides(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setenv("COFFEE_API_PORT", "9090")
     monkeypatch.setenv("COFFEE_DATA_RAW_PATH", "custom/data.csv")
     monkeypatch.setenv("COFFEE_ENABLE_ARTIFACT_INTEGRITY_CHECK", "false")
+    monkeypatch.setenv("COFFEE_ENABLE_AUDIT_LOGGING", "false")
     monkeypatch.setenv("MLFLOW_TRACKING_URI", "http://mlflow-server:5000")
 
     settings = Settings.from_env()
@@ -52,6 +54,7 @@ def test_environment_variable_overrides(monkeypatch: pytest.MonkeyPatch) -> None
     assert settings.api_port == 9090
     assert settings.data_raw_path == Path("custom/data.csv")
     assert settings.enable_artifact_integrity_check is False
+    assert settings.enable_audit_logging is False
     assert settings.mlflow_tracking_uri == "http://mlflow-server:5000"
 
 

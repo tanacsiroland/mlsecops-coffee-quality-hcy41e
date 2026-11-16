@@ -10,6 +10,7 @@ from sklearn.pipeline import Pipeline
 
 from coffee_quality.api.app import create_app
 from coffee_quality.api.dependencies import global_model_container
+from coffee_quality.config import Settings
 from coffee_quality.features.preprocessor import build_feature_preprocessor
 from coffee_quality.models.baseline import build_dummy_pipeline
 
@@ -51,9 +52,10 @@ def clean_container():
 
 
 @pytest.fixture
-def active_app() -> TestClient:
+def active_app(tmp_path: Path) -> TestClient:
     """Create test client with pre-loaded baseline model pipeline."""
-    app_instance = create_app()
+    settings = Settings(audit_log_path=tmp_path / "predict_audit.jsonl")
+    app_instance = create_app(settings=settings)
 
     pipeline = build_dummy_pipeline()
     # Fit dummy on minimal mock features
@@ -99,6 +101,7 @@ def test_predict_single_item_success(active_app: TestClient):
     }
     response = active_app.post("/predict", json=payload)
     assert response.status_code == 200
+    assert "X-Request-ID" in response.headers
     data = response.json()
 
     assert data["count"] == 1
@@ -144,15 +147,17 @@ def test_predict_batch_items_success(active_app: TestClient):
     }
     response = active_app.post("/predict", json=payload)
     assert response.status_code == 200
+    assert "X-Request-ID" in response.headers
     data = response.json()
 
     assert data["count"] == 2
     assert len(data["predictions"]) == 2
 
 
-def test_predict_fallback_for_classifier_without_proba():
+def test_predict_fallback_for_classifier_without_proba(tmp_path: Path):
     """Verify fallback when model does not implement predict_proba."""
-    app_instance = create_app()
+    settings = Settings(audit_log_path=tmp_path / "fallback_audit.jsonl")
+    app_instance = create_app(settings=settings)
     pipeline = Pipeline([
         ("preprocessor", build_feature_preprocessor()),
         ("classifier", NoProbaClassifier()),
@@ -180,9 +185,10 @@ def test_predict_fallback_for_classifier_without_proba():
     assert response.json()["predictions"][0]["is_specialty"] == 1
 
 
-def test_predict_fallback_for_single_column_proba():
+def test_predict_fallback_for_single_column_proba(tmp_path: Path):
     """Verify handling when predict_proba returns a 1D column."""
-    app_instance = create_app()
+    settings = Settings(audit_log_path=tmp_path / "single_col_audit.jsonl")
+    app_instance = create_app(settings=settings)
     pipeline = Pipeline([
         ("preprocessor", build_feature_preprocessor()),
         ("classifier", SingleColProbaClassifier()),
@@ -255,7 +261,6 @@ def test_predict_batch_bounds(active_app: TestClient):
 
 def test_predict_model_unavailable_raises_503(tmp_path: Path):
     """Verify HTTP 503 is returned when no model is available in the system."""
-    from coffee_quality.config import Settings
     isolated_settings = Settings(
         model_artifacts_dir=tmp_path / "empty_artifacts",
         mlflow_tracking_uri=f"sqlite:///{tmp_path / 'empty.db'}",
