@@ -21,6 +21,8 @@ classifiers = [
 
 [tool.pyright]
 include = ["src"]
+venvPath = "."
+venv = ".venv"
 typeCheckingMode = "strict"
 reportMissingTypeStubs = false
 reportUnknownMemberType = false
