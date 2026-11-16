@@ -130,8 +130,23 @@ jobs:
       - name: Verify container execution and health endpoint
         run: |
           docker run -d --name test-api -p 8000:8000 coffee-quality-api:latest
-          sleep 5
+          ready=0
+          for i in $(seq 1 15); do
+            if curl -s -f http://localhost:8000/health > /dev/null 2>&1; then
+              echo "API container became healthy on attempt $i!"
+              ready=1
+              break
+            fi
+            echo "Waiting for API service initialization... (attempt $i/15)"
+            sleep 2
+          done
           docker logs test-api
-          curl --fail --retry 5 --retry-delay 2 http://localhost:8000/health
+          if [ $ready -ne 1 ]; then
+            echo "Error: Container healthcheck timed out"
+            docker stop test-api
+            docker rm -f test-api
+            exit 1
+          fi
+          curl -s -S --fail http://localhost:8000/health
           docker stop test-api
           docker rm -f test-api
