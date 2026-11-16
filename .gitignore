@@ -225,3 +225,4 @@ CONTEXT.md
 mlflow.db
 mlruns/
 artifacts/
+data/audit/
