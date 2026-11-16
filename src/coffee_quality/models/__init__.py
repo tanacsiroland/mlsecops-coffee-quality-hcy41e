@@ -16,10 +16,16 @@ from coffee_quality.models.registry import (
     log_experiment_run,
     promote_model_alias,
 )
+from coffee_quality.models.trainer import (
+    build_competitive_pipeline,
+    run_training_pipeline,
+    train_and_evaluate_pipeline,
+)
 
 __all__ = [
     "CrossValidationResult",
     "EvaluationMetrics",
+    "build_competitive_pipeline",
     "build_dummy_pipeline",
     "build_logistic_pipeline",
     "evaluate_cv",
@@ -30,5 +36,7 @@ __all__ = [
     "load_registered_model",
     "log_experiment_run",
     "promote_model_alias",
+    "run_training_pipeline",
     "train_and_evaluate_baseline",
+    "train_and_evaluate_pipeline",
 ]
