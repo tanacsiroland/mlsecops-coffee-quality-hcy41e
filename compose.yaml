@@ -1,0 +1,113 @@
+# ==============================================================================
+# Docker Compose Orchestration Specification
+# MLSecOps Coffee Quality Prediction Stack
+# Services:
+#   - mlflow: Experiment tracking and model registry server (Port 5000)
+#   - api: FastAPI model serving, inference, and drift monitoring daemon (Port 8000)
+#   - frontend: Streamlit interactive prediction and drift dashboard (Port 8501)
+# ==============================================================================
+
+services:
+  mlflow:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coffee-mlflow
+    command: >
+      mlflow server
+      --backend-store-uri sqlite:////app/mlruns/mlflow.db
+      --default-artifact-root /app/mlruns/artifacts
+      --host 0.0.0.0
+      --port 5000
+    ports:
+      - "5000:5000"
+    environment:
+      MLFLOW_DISABLE_AGENT_HINT: "1"
+    volumes:
+      - mlflow_data:/app/mlruns
+    networks:
+      - coffee-net
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coffee-api
+    command: ["uvicorn", "coffee_quality.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    environment:
+      COFFEE_APP_ENV: production
+      COFFEE_MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      COFFEE_API_HOST: 0.0.0.0
+      COFFEE_API_PORT: 8000
+      COFFEE_DATA_RAW_PATH: /app/data/raw/dataset.csv
+      COFFEE_DATA_PROCESSED_DIR: /app/data/processed
+      COFFEE_AUDIT_LOG_PATH: /app/data/audit/audit.jsonl
+      COFFEE_MODEL_ARTIFACTS_DIR: /app/artifacts/models
+    volumes:
+      - mlflow_data:/app/mlruns
+      - audit_data:/app/data/audit
+      - model_artifacts:/app/artifacts/models
+    networks:
+      - coffee-net
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coffee-frontend
+    command: >
+      streamlit run frontend/streamlit_app.py
+      --server.port=8501
+      --server.address=0.0.0.0
+      --server.headless=true
+      --browser.gatherUsageStats=false
+    ports:
+      - "8501:8501"
+    environment:
+      COFFEE_API_URL: http://api:8000
+      API_URL: http://api:8000
+    networks:
+      - coffee-net
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+volumes:
+  mlflow_data:
+    name: coffee_mlflow_data
+  audit_data:
+    name: coffee_audit_data
+  model_artifacts:
+    name: coffee_model_artifacts
+
+networks:
+  coffee-net:
+    name: coffee_network
+    driver: bridge

@@ -1,0 +1,33 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--unsafe]
+      - id: check-toml
+      - id: check-json
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.1
+    hooks:
+      - id: flake8
+
+  - repo: local
+    hooks:
+      - id: pyright
+        name: pyright
+        entry: python -c "import sys, subprocess, shutil; cmd = shutil.which('pyright') or ('.venv/Scripts/pyright.exe' if sys.platform == 'win32' else '.venv/bin/pyright'); sys.exit(subprocess.run([cmd, 'src']).returncode)"
+        language: system
+        pass_filenames: false
+        types: [python]
