@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from coffee_quality.api.routes.predict import router as predict_router
 from coffee_quality.config import Settings, get_settings
 
 logger = logging.getLogger(__name__)
@@ -136,6 +137,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             model_alias=active_alias,
             timestamp_utc=datetime.now(timezone.utc).isoformat(),
         )
+
+    # Route modules
+    app.include_router(predict_router)
 
     return app
 
