@@ -1,0 +1,52 @@
+# Git and version control
+.git
+.gitignore
+.gitattributes
+.github
+.dvc
+.dvcignore
+
+# Virtual environments
+.venv
+venv
+env
+ENV
+
+# Python byte-compiled artifacts
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+build
+dist
+*.egg-info
+
+# Testing and coverage reports
+tests
+.pytest_cache
+.coverage
+.coverage.*
+htmlcov
+.tox
+.nox
+
+# IDE and editor caches
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Local databases and runtime state
+mlflow.db
+mlruns
+artifacts
+data/audit
+*.log
+CONTEXT.md
+
+# Documentation and notebooks
+docs
+notebooks
+README.md
